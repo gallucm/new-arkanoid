@@ -1,0 +1,16 @@
+appId: com.cmg.newarkanoid
+productName: New Arkanoid
+directories:
+  output: release
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+linux:
+  target:
+    - AppImage
+  category: Game
+  syncDesktopName: true
+win:
+  target:
+    - nsis

@@ -1,0 +1,183 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color-scheme: dark;
+  color: #f8fafc;
+  background: #000;
+  --muted: #bac7d9;
+  --accent: #ffde55;
+  --panel: #111928;
+  --border: #7a8da8;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input {
+  font: inherit;
+}
+
+button {
+  min-height: 44px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  color: inherit;
+  background: var(--panel);
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+}
+
+.game-stage {
+  position: relative;
+  flex: 1;
+  display: grid;
+  place-items: center;
+}
+
+.game-board {
+  position: absolute;
+  inset: 0;
+}
+
+.game-board:focus-visible {
+  outline-offset: -4px;
+}
+
+.game-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.game-container canvas {
+  display: block;
+  flex: 0 0 auto;
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+  touch-action: none;
+}
+
+.arcade-screen {
+  z-index: 1;
+  width: 100%;
+  min-height: 100%;
+  padding: clamp(1rem, 4vw, 2rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  background: #060a12;
+}
+
+.arcade-screen h1,
+.arcade-screen p {
+  margin: 0;
+}
+.arcade-logo img {
+  display: block;
+  width: min(100%, 23rem);
+  height: auto;
+  image-rendering: pixelated;
+  margin: auto;
+}
+.arcade-caption,
+.arcade-screen small {
+  color: var(--muted);
+}
+
+.arcade-actions {
+  display: grid;
+  gap: 0.65rem;
+  width: min(100%, 18rem);
+}
+
+.arcade-actions > button:first-of-type {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.score-table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+
+.score-table th,
+.score-table td {
+  padding: 0.45rem clamp(0.2rem, 2vw, 0.8rem);
+  border-bottom: 1px solid #40506b;
+  overflow-wrap: anywhere;
+}
+
+.score-table th {
+  color: var(--accent);
+}
+
+.game-hud {
+  order: -1;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.5rem;
+  background: #060a12;
+}
+
+.game-hud strong,
+.result-screen strong {
+  color: var(--accent);
+}
+
+.game-controls {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.result-screen {
+  background: #060a12f5;
+}
+
+.score-form {
+  text-align: left;
+}
+
+.score-form input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  color: inherit;
+  background: var(--panel);
+}
