@@ -47,5 +47,6 @@
   },
   "main": "electron/main.mjs",
   "description": "Remake de Arkanoid",
+  "homepage": "https://github.com/gallucm/new-arkanoid",
   "desktopName": "new-arkanoid.desktop"
 }

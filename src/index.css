@@ -168,6 +168,28 @@ button:hover {
   background: #060a12f5;
 }
 
+.pause-dialog {
+  width: min(calc(100% - 2rem), 22rem);
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  color: inherit;
+  background: #060a12;
+  text-align: center;
+}
+
+.pause-dialog::backdrop {
+  background: #000a;
+}
+
+.pause-dialog h2 {
+  margin: 0 0 1rem;
+}
+
+.pause-dialog .arcade-actions {
+  margin: auto;
+}
+
 .score-form {
   text-align: left;
 }

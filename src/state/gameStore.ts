@@ -1,4 +1,6 @@
 import { createStore } from 'zustand/vanilla'
+import { INITIAL_LIVES } from '@/game/levelRules'
+import { LEVEL_COUNT } from '@/game/levels/level'
 import {
   createRuntimeStorage,
   type NewScore,
@@ -30,6 +32,7 @@ export interface GameState {
   status: GameStatus
   score: number
   lives: number
+  level: number
   outcome: GameOutcome
   muted: boolean
   scores: ScoreEntry[]
@@ -37,6 +40,8 @@ export interface GameState {
   setScore: (score: number) => void
   setLives: (lives: number) => void
   setOutcome: (outcome: GameOutcome) => void
+  startCampaign: () => void
+  advanceLevel: () => boolean
   setMuted: (muted: boolean) => void
   toggleMuted: () => void
   setScores: (scores: ScoreEntry[]) => void
@@ -55,7 +60,8 @@ function readInitialScores(): ScoreEntry[] {
 export const useGameStore = createStore<GameState>()((set, get) => ({
   status: 'intro',
   score: 0,
-  lives: 3,
+  lives: INITIAL_LIVES,
+  level: 1,
   outcome: null,
   muted: readMuted(),
   scores: readInitialScores(),
@@ -63,6 +69,16 @@ export const useGameStore = createStore<GameState>()((set, get) => ({
   setScore: (score) => set({ score }),
   setLives: (lives) => set({ lives }),
   setOutcome: (outcome) => set({ outcome }),
+  startCampaign: () =>
+    set({ level: 1, score: 0, lives: INITIAL_LIVES, outcome: null }),
+  advanceLevel: () => {
+    const { status, level, outcome } = get()
+    if (status !== 'level' || outcome !== 'won' || level >= LEVEL_COUNT)
+      return false
+
+    set({ level: level + 1, outcome: null })
+    return true
+  },
   setMuted: (muted) => {
     persistMuted(muted)
     set({ muted })

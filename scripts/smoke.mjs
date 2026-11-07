@@ -92,9 +92,9 @@ try {
     await button('Guardar puntaje').click()
     await rankingHeading.waitFor()
 
-    const rankRow = page
-      .getByRole('row')
-      .filter({ has: page.getByRole('cell', { name: 'SMOKE-1', exact: true }) })
+    const rankRow = page.getByRole('row').filter({
+      has: page.getByRole('cell', { name: 'SMOKE-1', exact: true }),
+    })
     const rankScore = rankRow.getByRole('cell', {
       name: String(score),
       exact: true,
@@ -106,9 +106,73 @@ try {
     await button('Ranking').click()
     await rankScore.waitFor()
 
+    await page.keyboard.press('Escape')
+    await button('Jugar').click()
+    await page.getByText('Vidas 3', { exact: true }).waitFor()
+    await board.press('Space')
+    await board.press('Escape')
+    const pause = page.getByRole('dialog', { name: 'Partida en pausa' })
+    const resume = pause.getByRole('button', { name: 'Continuar' })
+    await resume.waitFor()
+    assert.equal(
+      await resume.evaluate((el) => el === document.activeElement),
+      true,
+    )
+    const pausedFrame = await canvas.screenshot()
+    await page.waitForTimeout(350)
+    assert.deepEqual(await canvas.screenshot(), pausedFrame)
+    await page.keyboard.press('Escape')
+    await pause.waitFor({ state: 'hidden' })
+    assert.equal(
+      await board.evaluate((el) => el === document.activeElement),
+      true,
+    )
+    await button('Pausar').click()
+    await pause.getByRole('button', { name: 'Salir al menú' }).click()
+    await button('Jugar').waitFor()
+
+    // Keep real physics, with one brick per level on the opening serve path.
+    const campaign = await browser.newPage()
+    campaign.on('pageerror', (error) => errors.push(error.message))
+    const fixture = {
+      rows: [...Array(5).fill('............'), '.......B....'],
+      multiball: { row: 5, column: 7 },
+    }
+    await campaign.route(/\/level_0[12]\.json(?:\?|$)/, (route) =>
+      route.fulfill({
+        contentType: 'text/javascript',
+        body: `export default ${JSON.stringify(fixture)}`,
+      }),
+    )
+    const campaignButton = (name) =>
+      campaign.getByRole('button', { name, exact: true })
+    const campaignBoard = campaign.getByRole('region', {
+      name: 'Tablero de New Arkanoid',
+    })
+    await campaign.goto(url)
+    await campaignButton('Entrar').click()
+    await campaignButton('Jugar').click()
+    await campaign.getByText('Nivel 1', { exact: true }).waitFor()
+    await campaignBoard.press('Space')
+    await campaign.getByRole('heading', { name: '¡Nivel superado!' }).waitFor()
+    assert.equal(await campaignButton('Guardar puntaje').count(), 0)
+    await campaignButton('Continuar al nivel 2').click()
+    await campaign.getByText('Nivel 2', { exact: true }).waitFor()
+    await campaign.getByText('Puntaje 2', { exact: true }).waitFor()
+    await campaign.getByText('Vidas 3', { exact: true }).waitFor()
+    await campaignBoard.press('Space')
+    await campaign
+      .getByRole('heading', { name: '¡Campaña completada!' })
+      .waitFor()
+    await campaign.getByText('Puntaje final 4', { exact: true }).waitFor()
+    await campaign.getByLabel('Nombre para el ranking').fill('FINAL')
+    await campaignButton('Guardar puntaje').click()
+    await campaign.getByRole('cell', { name: 'FINAL' }).waitFor()
+    await campaign.close()
+
     assert.deepEqual(errors, [], 'Unexpected browser errors')
     console.log(
-      'Smoke aprobado. Menú por teclado, partida, puntaje, ranking y persistencia tras recarga.',
+      'Smoke aprobado. Menú, pausa, campaña, puntaje, ranking y persistencia.',
     )
   } finally {
     await browser.close()

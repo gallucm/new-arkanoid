@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Phaser from 'phaser'
 import { useStore } from 'zustand'
 import { attachGameAudio } from '@/game/audio'
@@ -6,6 +6,7 @@ import { createGameConfig } from '@/game/config'
 import { useGameStore, type GameStatus } from '@/state/gameStore'
 import { SoundToggle } from '@/ui/SoundToggle'
 import { ArcadeScreen, RoundResult } from '@/ui/ArcadeScreen'
+import { PauseDialog } from '@/ui/PauseDialog'
 
 export default function App() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -14,7 +15,9 @@ export default function App() {
   const status = useStore(useGameStore, (state) => state.status)
   const score = useStore(useGameStore, (state) => state.score)
   const lives = useStore(useGameStore, (state) => state.lives)
+  const level = useStore(useGameStore, (state) => state.level)
   const outcome = useStore(useGameStore, (state) => state.outcome)
+  const [paused, setPaused] = useState(false)
   const playing = status === 'level' && outcome === null
 
   useEffect(() => {
@@ -38,24 +41,57 @@ export default function App() {
   }, [])
 
   useLayoutEffect(() => {
-    if (!playing) return
+    if (!playing || paused) return
     const scale = gameRef.current?.scale
     scale?.getParentBounds()
     scale?.refresh()
     boardRef.current?.focus()
-  }, [playing])
+  }, [playing, paused])
 
   function showScreen(next: Exclude<GameStatus, 'level'>) {
     if (status === 'level') gameRef.current?.scene.stop('Level')
+    setPaused(false)
     useGameStore.getState().setStatus(next)
   }
 
   function startGame() {
-    gameRef.current?.scene.start('Level')
+    const game = gameRef.current
+    if (!game) return
+    setPaused(false)
+    useGameStore.getState().startCampaign()
+    game.scene.start('Level')
+  }
+
+  function continueGame() {
+    const game = gameRef.current
+    if (!game || !useGameStore.getState().advanceLevel()) return
+    game.scene.start('Level')
+  }
+
+  function pauseGame() {
+    const game = gameRef.current
+    if (!game || !playing || paused) return
+    game.scene.getScene('Level').input.keyboard?.resetKeys()
+    game.scene.pause('Level')
+    setPaused(true)
+  }
+
+  function resumeGame() {
+    gameRef.current?.scene.resume('Level')
+    setPaused(false)
   }
 
   return (
-    <main className="app">
+    <main
+      className="app"
+      onKeyDown={(event) => {
+        if (playing && !paused && event.key === 'Escape' && !event.repeat) {
+          event.preventDefault()
+          event.stopPropagation()
+          pauseGame()
+        }
+      }}
+    >
       <div className="game-stage">
         <div
           ref={boardRef}
@@ -74,12 +110,6 @@ export default function App() {
                 .getScene('Level')
                 .input.keyboard?.resetKeys()
           }}
-          onKeyDown={(event) => {
-            if (playing && event.key === 'Escape') {
-              event.stopPropagation()
-              showScreen('menu')
-            }
-          }}
         >
           <div ref={containerRef} className="game-container" />
         </div>
@@ -91,11 +121,20 @@ export default function App() {
             startGame={startGame}
           />
         ) : outcome !== null ? (
-          <RoundResult outcome={outcome} score={score} navigate={showScreen} />
+          <RoundResult
+            outcome={outcome}
+            score={score}
+            level={level}
+            navigate={showScreen}
+            continueGame={continueGame}
+          />
         ) : null}
       </div>
       {playing && (
         <header className="game-hud">
+          <span>
+            Nivel <strong>{level}</strong>
+          </span>
           <span>
             Puntaje <strong>{score}</strong>
           </span>
@@ -103,16 +142,19 @@ export default function App() {
             Vidas <strong>{lives}</strong>
           </span>
           <SoundToggle />
-          <button type="button" onClick={() => showScreen('menu')}>
-            Volver al menú
+          <button type="button" onClick={pauseGame}>
+            Pausar
           </button>
         </header>
       )}
       {playing && (
         <p className="game-controls" id="game-controls">
           Flechas o puntero para mover · Espacio, clic o toque para lanzar · Esc
-          para volver
+          para pausar
         </p>
+      )}
+      {playing && paused && (
+        <PauseDialog resume={resumeGame} exit={() => showScreen('menu')} />
       )}
     </main>
   )

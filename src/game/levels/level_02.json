@@ -1,0 +1,11 @@
+{
+  "rows": [
+    "..BBBBBBBB..",
+    ".BB..BB..BB.",
+    "RRRR.RR.RRRR",
+    "RR.RRRRRR.RR",
+    ".YY.YYYY.YY.",
+    "..YYY..YYY.."
+  ],
+  "multiball": { "row": 5, "column": 4 }
+}

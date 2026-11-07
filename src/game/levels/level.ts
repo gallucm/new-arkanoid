@@ -1,4 +1,10 @@
 import { z } from 'zod'
+import levelOne from './level_01.json'
+import levelTwo from './level_02.json'
+
+const campaign = [levelOne, levelTwo]
+
+export const LEVEL_COUNT = campaign.length
 
 export const BRICK_COLORS = {
   B: 0x48a6ff,
@@ -48,4 +54,8 @@ export function loadLevel(data: unknown): LevelBrick[] {
           ],
     ),
   )
+}
+
+export function loadCampaignLevel(level: number): LevelBrick[] {
+  return loadLevel(campaign[level - 1])
 }

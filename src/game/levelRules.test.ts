@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ballDrain, INITIAL_LIVES, paddleRebound } from './levelRules'
-import { loadLevel } from './levels/level'
+import { loadCampaignLevel, loadLevel } from './levels/level'
 import levelData from './levels/level_01.json'
 
 describe('nivel 1', () => {
@@ -21,6 +21,17 @@ describe('nivel 1', () => {
         rows: [...levelData.rows.slice(0, 5), 'YY.YYYYYYYYY'],
       }),
     ).toThrow()
+  })
+})
+
+describe('nivel 2', () => {
+  it('carga un tablero distinto de 48 ladrillos con un solo bonus', () => {
+    const bricks = loadCampaignLevel(2)
+
+    expect(bricks).toHaveLength(48)
+    expect(bricks.filter(({ multiball }) => multiball)).toEqual([
+      expect.objectContaining({ row: 5, column: 4 }),
+    ])
   })
 })
 

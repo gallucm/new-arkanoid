@@ -1,0 +1,30 @@
+# Dependencias y salidas generadas
+node_modules/
+/dist/
+/dist-ssr/
+/release/
+*.tsbuildinfo
+
+# Resultados de pruebas y logs
+/coverage/
+/playwright-report/
+/test-results/
+*.log
+npm-debug.log*
+
+# Entorno local
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.local
+
+# Archivos de editores y del sistema
+/.vscode/*
+!/.vscode/extensions.json
+/.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo

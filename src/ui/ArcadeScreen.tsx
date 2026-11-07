@@ -6,6 +6,7 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { useStore } from 'zustand'
+import { LEVEL_COUNT } from '@/game/levels/level'
 import {
   qualifiesForEntry,
   SCORE_NAME_MAX,
@@ -81,12 +82,12 @@ export function ArcadeScreen({
               >
                 Entrar
               </button>
-                <button
-                  type="button"
-                  onClick={() => useGameStore.getState().setMuted(false)}
-                >
-                  Escuchar música
-                </button>
+              <button
+                type="button"
+                onClick={() => useGameStore.getState().setMuted(false)}
+              >
+                Escuchar música
+              </button>
               <p className="arcade-caption">CMG · 2026</p>
             </>
           ) : (
@@ -166,14 +167,23 @@ export function ArcadeScreen({
 interface RoundResultProps {
   outcome: 'won' | 'lost'
   score: number
+  level: number
   navigate: Navigate
+  continueGame: () => void
 }
 
-export function RoundResult({ outcome, score, navigate }: RoundResultProps) {
+export function RoundResult({
+  outcome,
+  score,
+  level,
+  navigate,
+  continueGame,
+}: RoundResultProps) {
   const scores = useStore(useGameStore, (state) => state.scores)
   const [error, setError] = useState('')
   const panelRef = useRef<HTMLElement>(null)
-  const canSave = qualifiesForEntry(score, scores)
+  const hasNextLevel = outcome === 'won' && level < LEVEL_COUNT
+  const canSave = !hasNextLevel && qualifiesForEntry(score, scores)
 
   useEffect(() => {
     panelRef.current
@@ -207,11 +217,20 @@ export function RoundResult({ outcome, score, navigate }: RoundResultProps) {
       }}
     >
       <h1 id="result-title" data-initial-focus tabIndex={-1}>
-        {outcome === 'won' ? '¡Nivel superado!' : 'Fin de la partida'}
+        {hasNextLevel
+          ? '¡Nivel superado!'
+          : outcome === 'won'
+            ? '¡Campaña completada!'
+            : 'Fin de la partida'}
       </h1>
       <p>
-        Puntaje final <strong>{score}</strong>
+        {hasNextLevel ? 'Puntaje' : 'Puntaje final'} <strong>{score}</strong>
       </p>
+      {hasNextLevel && (
+        <button type="button" onClick={continueGame}>
+          Continuar al nivel {level + 1}
+        </button>
+      )}
       {canSave && (
         <form className="arcade-actions score-form" onSubmit={saveScore}>
           <label htmlFor="player-name">Nombre para el ranking</label>

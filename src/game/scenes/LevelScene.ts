@@ -2,13 +2,11 @@ import Phaser from 'phaser'
 import { useGameStore } from '@/state/gameStore'
 import {
   ballDrain,
-  INITIAL_LIVES,
   MAX_BALLS,
   paddleRebound,
   POINTS_PER_BRICK,
 } from '../levelRules'
-import { loadLevel } from '../levels/level'
-import levelData from '../levels/level_01.json'
+import { loadCampaignLevel } from '../levels/level'
 
 type ArcadeBody = Phaser.Physics.Arcade.Body
 type Moving<T extends Phaser.GameObjects.GameObject> = T & { body: ArcadeBody }
@@ -50,9 +48,6 @@ export class LevelScene extends Phaser.Scene {
 
   create(): void {
     const store = useGameStore.getState()
-    store.setOutcome(null)
-    store.setScore(0)
-    store.setLives(INITIAL_LIVES)
 
     const { width, height } = this.scale.gameSize
     this.paddleY = height - 32
@@ -99,7 +94,7 @@ export class LevelScene extends Phaser.Scene {
     )
     this.deactivate(this.bonus)
 
-    const level = loadLevel(levelData)
+    const level = loadCampaignLevel(store.level)
     const bricks = this.physics.add.staticGroup()
     const firstColumnX = width / 2 - 5.5 * BRICK_SPACING
     for (const brick of level) {

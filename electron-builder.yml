@@ -10,6 +10,7 @@ linux:
   target:
     - AppImage
   category: Game
+  maintainer: "New Arkanoid <gallucm@users.noreply.github.com>"
   syncDesktopName: true
 win:
   target:
